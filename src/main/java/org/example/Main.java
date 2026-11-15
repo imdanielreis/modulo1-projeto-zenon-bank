@@ -1,50 +1,29 @@
 package org.example;
 
+import org.example.infra.TransactionIngestor;
 import org.example.model.Transaction;
-import org.example.model.TransactionType;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
+import java.io.IOException;
 import java.util.List;
 
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {
+
+    private static final System.Logger logger =
+            System.getLogger(Main.class.getName());
+
     static void main() {
 
-        List<Transaction> transactions = new ArrayList<>();
+        try {
 
-        Transaction transasctionOne = new Transaction(
-                                                1,
-                                                TransactionType.PAYMENT,
-                                                new BigDecimal("9839.64"),
-                                                "C1231006815",
-                                                new BigDecimal("170136.0"),
-                                                new BigDecimal("160296.36"),
-                                                "M1979787155",
-                                                new BigDecimal("0.0"),
-                                                new BigDecimal("0.0"),
-                                                false
-                                                , false
-                                        );
+            TransactionIngestor transactionIngestor = new TransactionIngestor();
 
-        Transaction transasctionTwo = new Transaction(
-                743,
-                TransactionType.CASH_OUT,
-                new BigDecimal("850002.52"),
-                "C1280323807",
-                new BigDecimal("850002.52"),
-                new BigDecimal("0.0"),
-                "C873221189",
-                new BigDecimal("6510099.11"),
-                new BigDecimal("7360101.63"),
-                true
-                , false
-        );
+            List<Transaction> listTransactionsForFile = transactionIngestor.getListTransactionsForFile("PS_20174392719_1491204439457_log.csv");
 
-        transactions.add(transasctionOne);
-        transactions.add(transasctionTwo);
-
-        transactions.forEach(System.out::println);
+            for (int i = 0; i < 10; i++) {
+                System.out.println(listTransactionsForFile.get(i));
+            }
+        } catch (IOException e) {
+            logger.log(System.Logger.Level.ERROR, "O arquivo não pode ser aberto, confira o nome.");
+        }
     }
 }
