@@ -8,49 +8,87 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class TransactionIngestor {
 
-    public List<Transaction> getListTransactionsForFile(String fileName) throws IOException {
+    public List<Transaction> getListTransactionsForFile(String fileName)
+            throws IOException {
 
         List<Transaction> transactions = new ArrayList<>();
+
         Path path = Path.of("data", fileName).toAbsolutePath();
 
-        try(BufferedReader input = Files.newBufferedReader(path)) {
-            List<String> lines = input.readAllLines();
+        try (BufferedReader input = Files.newBufferedReader(path)) {
+            input.readLine();
 
-            for (int i = 1; i <= 1000; i++) {
-                String[] lineWithCommas = lines.get(i).split(",", -1);
+            String line;
+            int errorCount = 0;
+            while ((line = input.readLine()) != null) {
 
-                transactions.add(parseToTransactioItem(lineWithCommas));
+                try {
+                    transactions.add(
+                            parseToTransactionItem(line.split(",", -1)));
+                } catch (IllegalArgumentException | NullPointerException e) {
+                    System.out.println("Erro: " + line + " " + e.getClass().getName() + " " + e.getMessage());
+                    errorCount++;
+                }
             }
-        } catch (IOException e) {
-            throw new IOException(e);
+
+            System.out.println(errorCount);
+        } catch (Exception e) {
+            System.err.println("Erro: Arquivo não encontrado.");
         }
 
         return transactions;
     }
 
-    private static Transaction parseToTransactioItem(String[] lineWithCommas) {
-
-        if(lineWithCommas.length < 10) {
-            throw new IllegalArgumentException("Era esperado 10 colunas e vieram: " + lineWithCommas.length);
-        }
+    private static Transaction parseToTransactionItem(String[] fields) {
 
         return new Transaction(
-                        Integer.parseInt(lineWithCommas[0].strip()),
-                        TransactionType.valueOf(lineWithCommas[1]),
-                        new BigDecimal(lineWithCommas[2].strip()),
-                        lineWithCommas[3].strip(),
-                        new BigDecimal(lineWithCommas[4].strip()),
-                        new BigDecimal(lineWithCommas[5].strip()),
-                        lineWithCommas[6].strip(),
-                        new BigDecimal(lineWithCommas[7].strip()),
-                        new BigDecimal(lineWithCommas[8].strip()),
-                        Boolean.parseBoolean(lineWithCommas[9].strip()),
-                        Boolean.parseBoolean(lineWithCommas[10].strip())
+                        Integer.parseInt(requiredField(fields, 0, "step", false)),
+                        validateParseType(requiredField(fields, 1, "type", false)),
+                        new BigDecimal(requiredField(fields, 2, "amount", true)),
+                        requiredField(fields, 3, "nameOrig", false),
+                        new BigDecimal(requiredField(fields, 4, "oldbalanceOrg", true)),
+                        new BigDecimal(requiredField(fields, 5, "newbalanceOrig", true)),
+                        requiredField(fields, 6, "nameDest", false),
+                        new BigDecimal(requiredField(fields, 7, "oldbalanceDest", true)),
+                        new BigDecimal(requiredField(fields, 8, "newbalanceDest", true)),
+                        Boolean.parseBoolean(requiredField(fields, 9, "isFraud", false)),
+                        Boolean.parseBoolean(requiredField(fields, 10, "isFlaggedFraud", false))
         );
+    }
+
+    private static String requiredField(String[] fields, int index, String name, boolean numeric) throws IllegalArgumentException {
+
+        if (fields[index] == null || fields[index].isBlank()) {
+            if (numeric) {
+                throw new NumberFormatException("");
+            }
+
+            throw new IllegalArgumentException(name + " should not be empty");
+        }
+
+        return fields[index].strip();
+    }
+
+    private static TransactionType  validateParseType(String value) throws IllegalArgumentException {
+
+        try {
+            return TransactionType.valueOf(value);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException(
+                    "No enum constant: " + value);
+        }
+    }
+
+    private static BigDecimal parseDecimal(String value, String name) {
+
+        if (value.isBlank()) {
+            throw new NumberFormatException(name + " should not be empty");
+        }
+
+        return new BigDecimal(value.strip());
     }
 }
