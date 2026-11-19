@@ -14,12 +14,11 @@ public class Main {
     static void main() {
 
         try {
-
             TransactionIngestor transactionIngestor = new TransactionIngestor();
 
-            List<Transaction> listTransactionsForFile = transactionIngestor.getListTransactionsForFile("PS_20174392719_1491204439457_log.csv");
+            List<Transaction> listTransactionsForFile = transactionIngestor.getListTransactionsForFile("paysim_with_bad_data.csv");
 
-            for (int i = 0; i < 10; i++) {
+            for (int i = 0; i < listTransactionsForFile.size(); i++) {
                 System.out.println(listTransactionsForFile.get(i));
             }
         } catch (IOException e) {
