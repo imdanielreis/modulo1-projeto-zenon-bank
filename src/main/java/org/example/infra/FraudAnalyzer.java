@@ -1,12 +1,16 @@
 package org.example.infra;
 
 import org.example.model.Transaction;
+import org.example.model.TransactionType;
+
 
 
 import java.math.BigDecimal;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
+
 
 //Stream Exercise
 public class FraudAnalyzer {
@@ -64,9 +68,13 @@ public class FraudAnalyzer {
     // Conte quantas fraudes ocorreram por tipo de transação (CASH_OUT, TRANSFER, etc...).
     public void printCountFraudsByType(List<Transaction> transactions) {
 
-        var fraudCountByType = transactions.stream()
+        Map<TransactionType, Long> fraudCountByType = transactions.stream()
+
                 .filter(Transaction::isFraud)
-                .collect(Collectors.groupingBy(Transaction::type, Collectors.counting()));
+                .collect(Collectors.groupingBy(
+                        Transaction::type,
+                        Collectors.counting()
+                ));
 
         System.out.println("5. Fraudes por Tipo: ");
         fraudCountByType.forEach((entry, value) -> System.out.println(entry + " "+ value));
