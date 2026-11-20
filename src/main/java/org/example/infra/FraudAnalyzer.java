@@ -4,6 +4,7 @@ import org.example.model.Transaction;
 import org.example.model.TransactionType;
 
 
+
 import java.math.BigDecimal;
 import java.util.Comparator;
 import java.util.List;
@@ -68,6 +69,7 @@ public class FraudAnalyzer {
     public void printCountFraudsByType(List<Transaction> transactions) {
 
         Map<TransactionType, Long> fraudCountByType = transactions.stream()
+
                 .filter(Transaction::isFraud)
                 .collect(Collectors.groupingBy(
                         Transaction::type,
