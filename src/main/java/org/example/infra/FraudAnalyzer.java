@@ -69,7 +69,6 @@ public class FraudAnalyzer {
     public void printCountFraudsByType(List<Transaction> transactions) {
 
         Map<TransactionType, Long> fraudCountByType = transactions.stream()
-
                 .filter(Transaction::isFraud)
                 .collect(Collectors.groupingBy(
                         Transaction::type,
