@@ -23,7 +23,6 @@ public class TransactionIngestor {
             input.readLine();
 
             String line;
-            int errorCount = 0;
             while ((line = input.readLine()) != null) {
 
                 try {
@@ -31,11 +30,8 @@ public class TransactionIngestor {
                             parseToTransactionItem(line.split(",", -1)));
                 } catch (IllegalArgumentException | NullPointerException e) {
                     System.out.println("Erro: " + line + " " + e.getClass().getName() + " " + e.getMessage());
-                    errorCount++;
                 }
             }
-
-            System.out.println(errorCount);
         } catch (Exception e) {
             System.err.println("Erro: Arquivo não encontrado.");
         }
@@ -55,8 +51,8 @@ public class TransactionIngestor {
                         requiredField(fields, 6, "nameDest", false),
                         new BigDecimal(requiredField(fields, 7, "oldbalanceDest", true)),
                         new BigDecimal(requiredField(fields, 8, "newbalanceDest", true)),
-                        Boolean.parseBoolean(requiredField(fields, 9, "isFraud", false)),
-                        Boolean.parseBoolean(requiredField(fields, 10, "isFlaggedFraud", false))
+                        "1".equals(requiredField(fields, 9, "isFraud", false).trim()),
+                        "1".equals(requiredField(fields, 9, "isFlaggedFraud", false).trim())
         );
     }
 
