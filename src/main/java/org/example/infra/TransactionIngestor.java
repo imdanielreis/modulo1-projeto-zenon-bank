@@ -12,7 +12,7 @@ import java.util.*;
 
 public class TransactionIngestor {
 
-    public List<Transaction> getListTransactionsForFile(String fileName)
+    public List<Transaction> getListTransactionsForFileWithStream(String fileName)
             throws IOException {
 
         List<Transaction> transactions = new ArrayList<>();
@@ -20,6 +20,28 @@ public class TransactionIngestor {
         Path path = Path.of("data", fileName).toAbsolutePath();
 
         try (BufferedReader input = Files.newBufferedReader(path)) {
+
+            return  input.lines()
+                            .skip(1)
+                            .map(line -> line.split(",", -1))
+                            .map(this::parseToTransactionItem)
+                            .toList();
+        } catch (Exception e) {
+            System.err.println("Erro: Arquivo não encontrado.");
+        }
+
+        return transactions;
+    }
+
+    public List<Transaction> getListTransactionsForFileWhitWhile(String fileName)
+            throws IOException {
+
+        List<Transaction> transactions = new ArrayList<>();
+
+        Path path = Path.of("data", fileName).toAbsolutePath();
+
+        try (BufferedReader input = Files.newBufferedReader(path)) {
+
             input.readLine();
 
             String line;
@@ -39,7 +61,7 @@ public class TransactionIngestor {
         return transactions;
     }
 
-    private static Transaction parseToTransactionItem(String[] fields) {
+    private Transaction parseToTransactionItem(String[] fields) {
 
         return new Transaction(
                         Integer.parseInt(requiredField(fields, 0, "step", false)),

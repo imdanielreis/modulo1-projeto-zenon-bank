@@ -20,3 +20,17 @@ Siga o passo a passo do quadro de atividades (Trello) do projeto prático dessa 
 * **Java JDK**: 25 (LTS).
 * **IDE**: IntelliJ IDEA ou Eclipse.
 * **Docker e Docker Compose**: Para a tarefa de Banco de Dados.
+
+
+## 📦 Alguns números
+
+* **Teste de leitura com Stream das 6,362,620 de transações**: mediana de 3,055 s
+* **Teste de leitura com While das 6,362,620 de transações**: mediana de 2,8515 s
+
+Com quatro medições:
+Versão	Tempos em ordem crescente (s)	Mediana
+while	2,772 · 2,831 · 2,872 · 2,874	2,8515 s
+Stream	2,937 · 3,055 · 3,055 · 3,146	3,055 s
+
+
+Nessas medições, o while levou **203,5** ms a menos na mediana, uma redução de **6,7%** em relação à Stream.
