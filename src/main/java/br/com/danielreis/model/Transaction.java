@@ -1,4 +1,4 @@
-package org.example.model;
+package br.com.danielreis.model;
 
 import java.math.BigDecimal;
 import java.util.Objects;

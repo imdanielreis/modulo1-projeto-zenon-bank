@@ -1,7 +1,7 @@
-package org.example;
+package br.com.danielreis;
 
-import org.example.infra.TransactionIngestor;
-import org.example.model.Transaction;
+import br.com.danielreis.infra.TransactionIngestor;
+import br.com.danielreis.model.Transaction;
 
 import java.io.IOException;
 import java.util.*;
