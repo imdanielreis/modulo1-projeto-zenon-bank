@@ -21,11 +21,19 @@ public class TransactionIngestor {
 
         try (BufferedReader input = Files.newBufferedReader(path)) {
 
-            return  input.lines()
-                            .skip(1)
-                            .map(line -> line.split(",", -1))
-                            .map(this::parseToTransactionItem)
-                            .toList();
+            return input.lines()
+                    .skip(1)
+                    .map(line -> {
+                        try {
+                            return parseToTransactionItem(line.split(",", -1));
+                        } catch (IllegalArgumentException e) {
+                            System.out.println("Erro: " + line + " " + e.getClass().getName() + " " + e.getMessage());
+                            return null;
+                        }
+                    })
+                    .filter(Objects::nonNull)
+                    .toList();
+
         } catch (Exception e) {
             System.err.println("Erro: Arquivo não encontrado.");
         }
@@ -46,7 +54,6 @@ public class TransactionIngestor {
 
             String line;
             while ((line = input.readLine()) != null) {
-
                 try {
                     transactions.add(
                             parseToTransactionItem(line.split(",", -1)));
@@ -64,49 +71,26 @@ public class TransactionIngestor {
     private Transaction parseToTransactionItem(String[] fields) {
 
         return new Transaction(
-                        Integer.parseInt(requiredField(fields, 0, "step", false)),
-                        validateParseType(requiredField(fields, 1, "type", false)),
-                        new BigDecimal(requiredField(fields, 2, "amount", true)),
-                        requiredField(fields, 3, "nameOrig", false),
-                        new BigDecimal(requiredField(fields, 4, "oldbalanceOrg", true)),
-                        new BigDecimal(requiredField(fields, 5, "newbalanceOrig", true)),
-                        requiredField(fields, 6, "nameDest", false),
-                        new BigDecimal(requiredField(fields, 7, "oldbalanceDest", true)),
-                        new BigDecimal(requiredField(fields, 8, "newbalanceDest", true)),
-                        "1".equals(requiredField(fields, 9, "isFraud", false).trim()),
-                        "1".equals(requiredField(fields, 9, "isFlaggedFraud", false).trim())
+                Integer.parseInt(fields[0]),
+                validateParseType(fields[1]),
+                new BigDecimal(fields[2]),
+                fields[3],
+                new BigDecimal(fields[4]),
+                new BigDecimal(fields[5]),
+                fields[6],
+                new BigDecimal(fields[7]),
+                new BigDecimal(fields[8]),
+                "1".equals(fields[9].trim()),
+                "1".equals(fields[10].trim())
         );
     }
 
-    private static String requiredField(String[] fields, int index, String name, boolean numeric) throws IllegalArgumentException {
-
-        if (fields[index] == null || fields[index].isBlank()) {
-            if (numeric) {
-                throw new NumberFormatException("");
-            }
-
-            throw new IllegalArgumentException(name + " should not be empty");
-        }
-
-        return fields[index].strip();
-    }
-
-    private static TransactionType  validateParseType(String value) throws IllegalArgumentException {
-
+    private static TransactionType validateParseType(String value) throws IllegalArgumentException {
         try {
             return TransactionType.valueOf(value);
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException(
                     "No enum constant: " + value);
         }
-    }
-
-    private static BigDecimal parseDecimal(String value, String name) {
-
-        if (value.isBlank()) {
-            throw new NumberFormatException(name + " should not be empty");
-        }
-
-        return new BigDecimal(value.strip());
     }
 }
