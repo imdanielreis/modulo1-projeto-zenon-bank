@@ -1,6 +1,6 @@
-package org.example.database;
+package br.com.danielreis.database;
 
-import org.example.model.Transaction;
+import br.com.danielreis.model.Transaction;
 
 import java.util.HashMap;
 import java.util.List;

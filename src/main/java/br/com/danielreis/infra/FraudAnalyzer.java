@@ -1,7 +1,7 @@
-package org.example.infra;
+package br.com.danielreis.infra;
 
-import org.example.model.Transaction;
-import org.example.model.TransactionType;
+import br.com.danielreis.model.Transaction;
+import br.com.danielreis.model.TransactionType;
 
 
 

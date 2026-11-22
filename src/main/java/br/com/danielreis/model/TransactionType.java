@@ -1,4 +1,4 @@
-package org.example.model;
+package br.com.danielreis.model;
 
 public enum TransactionType {
     CASH_IN,
