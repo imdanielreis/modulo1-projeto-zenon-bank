@@ -22,10 +22,6 @@ public record Transaction(int step, TransactionType type, BigDecimal amount, Str
             throw new IllegalArgumentException("step should be positive: " + step);
         }
 
-        if (amount.signum() < 0) {
-            throw new NumberFormatException("amount should not be empty");
-        }
-
         if (nameOrig.isEmpty()) {
             throw new IllegalArgumentException("nameOrig should not be empty");
         }
