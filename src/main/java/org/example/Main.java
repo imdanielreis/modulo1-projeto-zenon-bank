@@ -1,8 +1,5 @@
 package org.example;
 
-import org.example.database.TransactionListRepository;
-import org.example.database.TransactionMapRepository;
-import org.example.infra.FraudAnalyzer;
 import org.example.infra.TransactionIngestor;
 import org.example.model.Transaction;
 
@@ -14,8 +11,39 @@ public class Main {
     private static final System.Logger logger =
             System.getLogger(Main.class.getName());
 
+    private static final String correctFile = "PS_20174392719_1491204439457_log.csv";
+    private static final String brokenFile = "paysim_with_bad_data.csv";
+
     static void main() {
         try {
+//            System.out.println("------------------  Begin   ------------------");
+//            System.out.println("------------------ Get file ------------------");
+//
+//            TransactionIngestor streamIngestor = new TransactionIngestor();
+//
+//            List<Transaction> correctedTransactions = streamIngestor
+//                    .getListTransactionsForFileWithStream(correctFile).stream()
+//                    .limit(1000)
+//                    .toList();
+//
+//            correctedTransactions.forEach(System.out::println);
+//
+//            System.out.println("------------------ Get file ------------------");
+//            System.out.println("------------------    END   ------------------\n");
+
+            System.out.println("------------------           Begin          ------------------");
+            System.out.println("------------------ Get broken items in file ------------------");
+
+            TransactionIngestor transactionIngestorStream = new TransactionIngestor();
+
+            List<Transaction> listTransactionsForFile = transactionIngestorStream
+                    .getListTransactionsForFileWithStream(brokenFile);
+
+            listTransactionsForFile.forEach(System.out::println);
+
+            System.out.println("------------------ Get broken items in file ------------------");
+            System.out.println("------------------            END           ------------------\n");
+
 //            System.out.println("------------------  Begin  ------------------");
 //            System.out.println("------------------ Streams ------------------");
 //
@@ -23,7 +51,7 @@ public class Main {
 //            long initStream = System.nanoTime();
 //
 //            List<Transaction> listTransactionsForFile = transactionIngestorStream
-//                    .getListTransactionsForFileWithStream("PS_20174392719_1491204439457_log.csv");
+//                    .getListTransactionsForFileWithStream(correctFile);
 //
 //            long finishStream = System.nanoTime();
 //            double secStream = (finishStream - initStream) / 1_000_000_000.0;
@@ -41,7 +69,7 @@ public class Main {
 //
 //            long initWhile = System.nanoTime();
 //            List<Transaction> listTransactionsForFileWhile = transactionIngetorWhile
-//                    .getListTransactionsForFileWhitWhile("PS_20174392719_1491204439457_log.csv");
+//                    .getListTransactionsForFileWhitWhile(correctFile);
 //
 //            long finishWhile = System.nanoTime();
 //            double secWhile = (finishWhile - initWhile) / 1_000_000_000.0;
@@ -58,7 +86,7 @@ public class Main {
 //            TransactionIngestor transactionIngestor = new TransactionIngestor();
 //
 //            List<Transaction> listTransactions = transactionIngestor
-//                    .getListTransactionsForFileWithStream("PS_20174392719_1491204439457_log.csv");
+//                    .getListTransactionsForFileWithStream(correctFile);
 //
 //            String name = "C1868032458";
 //            var listRepository = new TransactionListRepository(listTransactions);
@@ -88,27 +116,27 @@ public class Main {
 //            System.out.println("------------------ Map vs List------------------");
 //            System.out.println("------------------     End    ------------------\n");
 
-            System.out.println("------------------    Begin   ------------------");
-            System.out.println("------------------FraudAnalyzer------------------");
-
-            TransactionIngestor transactionIngestorFraudAnalyzer = new TransactionIngestor();
-
-            List<Transaction> fiftyThousandTransactions = transactionIngestorFraudAnalyzer
-                    .getListTransactionsForFileWithStream("PS_20174392719_1491204439457_log.csv")
-                    .stream()
-                    .limit(50000)
-                    .toList();
-
-            FraudAnalyzer analyzer = new FraudAnalyzer();
-
-            analyzer.printCountFraudTransactions(fiftyThousandTransactions);
-            analyzer.printValueThreeBiggestFraudsters(fiftyThousandTransactions);
-            analyzer.printNameOrigFiveBiggestFraudsters(fiftyThousandTransactions);
-            analyzer.printTotalLoss(fiftyThousandTransactions);
-            analyzer.printCountFraudsByType(fiftyThousandTransactions);
-
-            System.out.println("------------------FraudAnalyzer------------------");
-            System.out.println("------------------     End    ------------------\n");
+//            System.out.println("------------------    Begin   ------------------");
+//            System.out.println("------------------FraudAnalyzer------------------");
+//
+//            TransactionIngestor transactionIngestorFraudAnalyzer = new TransactionIngestor();
+//
+//            List<Transaction> fiftyThousandTransactions = transactionIngestorFraudAnalyzer
+//                    .getListTransactionsForFileWithStream(correctFile)
+//                    .stream()
+//                    .limit(50000)
+//                    .toList();
+//
+//            FraudAnalyzer analyzer = new FraudAnalyzer();
+//
+//            analyzer.printCountFraudTransactions(fiftyThousandTransactions);
+//            analyzer.printValueThreeBiggestFraudsters(fiftyThousandTransactions);
+//            analyzer.printNameOrigFiveBiggestFraudsters(fiftyThousandTransactions);
+//            analyzer.printTotalLoss(fiftyThousandTransactions);
+//            analyzer.printCountFraudsByType(fiftyThousandTransactions);
+//
+//            System.out.println("------------------FraudAnalyzer------------------");
+//            System.out.println("------------------     End    ------------------\n");
         } catch (IOException e) {
             logger.log(System.Logger.Level.ERROR, "O arquivo não pode ser aberto, confira o nome.");
         }

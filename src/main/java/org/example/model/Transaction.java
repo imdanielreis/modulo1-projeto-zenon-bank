@@ -22,6 +22,10 @@ public record Transaction(int step, TransactionType type, BigDecimal amount, Str
             throw new IllegalArgumentException("step should be positive: " + step);
         }
 
+        if (nameOrig.isEmpty()) {
+            throw new IllegalArgumentException("nameOrig should not be empty");
+        }
+
         validateNonNegative(amount, "amount");
         validateNonNegative(oldBalanceOrg, "oldBalanceOrg");
         validateNonNegative(newBalanceOrig, "newBalanceOrig");
