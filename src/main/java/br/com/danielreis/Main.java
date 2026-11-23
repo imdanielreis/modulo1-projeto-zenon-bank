@@ -1,6 +1,11 @@
 package br.com.danielreis;
 
+import br.com.danielreis.database.TransactionListRepository;
+import br.com.danielreis.database.TransactionMapRepository;
+import br.com.danielreis.infra.FraudAnalyzer;
 import br.com.danielreis.infra.TransactionIngestor;
+import br.com.danielreis.infra.TransactionReport;
+import br.com.danielreis.model.StatisticsReport;
 import br.com.danielreis.model.Transaction;
 
 import java.io.IOException;
@@ -8,50 +13,70 @@ import java.util.*;
 
 public class Main {
 
-    private static final System.Logger logger =
-            System.getLogger(Main.class.getName());
+    private static final System.Logger logger = System.getLogger(Main.class.getName());
 
     private static final String correctFile = "PS_20174392719_1491204439457_log.csv";
     private static final String brokenFile = "paysim_with_bad_data.csv";
+    private static final long totalNumberLines = 6362620;
 
     static void main() {
         try {
-//            System.out.println("------------------  Begin   ------------------");
-//            System.out.println("------------------ Get file ------------------");
+
+            IO.println("------------------     Begin     ------------------");
+            IO.println("------------------ Get file Lazy ------------------");
+
+            TransactionReport transactionReport = new TransactionReport();
+
+            StatisticsReport sReport = transactionReport.generateReportWithFile(correctFile);
+
+            IO.println("""
+                    Total de linhas %d
+                    Total de fraudes: %d
+                    Valor total transacionado: %.2f
+                    """.formatted(
+                            sReport.totalTransactios(),
+                            sReport.totalFrauds(),
+                            sReport.totalAmount()
+                    )
+            );
+
+            IO.println("------------------ Get file Lazy ------------------");
+            IO.println("------------------      END      ------------------\n");
+
+//            IO.println("------------------  Begin   ------------------");
+//            IO.println("------------------ Get file ------------------");
 //
 //            TransactionIngestor streamIngestor = new TransactionIngestor();
 //
 //            List<Transaction> correctedTransactions = streamIngestor
-//                    .getListTransactionsForFileWithStream(correctFile).stream()
-//                    .limit(1000)
-//                    .toList();
+//                    .getListTransactionsForFileWithStream(correctFile, totalNumberLines);
 //
 //            correctedTransactions.forEach(System.out::println);
 //
-//            System.out.println("------------------ Get file ------------------");
-//            System.out.println("------------------    END   ------------------\n");
+//            IO.println("------------------ Get file ------------------");
+//            IO.println("------------------    END   ------------------\n");
 
-            System.out.println("------------------           Begin          ------------------");
-            System.out.println("------------------ Get broken items in file ------------------");
+//            IO.println("------------------           Begin          ------------------");
+//            IO.println("------------------ Get broken items in file ------------------");
+//
+//            TransactionIngestor transactionIngestorStream = new TransactionIngestor();
+//
+//            List<Transaction> listTransactionsForFile = transactionIngestorStream
+//                    .getListTransactionsForFileWithStream(brokenFile, 17);
+//
+//            listTransactionsForFile.forEach(System.out::println);
+//
+//            IO.println("------------------ Get broken items in file ------------------");
+//            IO.println("------------------            END           ------------------\n");
 
-            TransactionIngestor transactionIngestorStream = new TransactionIngestor();
-
-            List<Transaction> listTransactionsForFile = transactionIngestorStream
-                    .getListTransactionsForFileWithStream(brokenFile);
-
-            listTransactionsForFile.forEach(System.out::println);
-
-            System.out.println("------------------ Get broken items in file ------------------");
-            System.out.println("------------------            END           ------------------\n");
-
-//            System.out.println("------------------  Begin  ------------------");
-//            System.out.println("------------------ Streams ------------------");
+//            IO.println("------------------  Begin  ------------------");
+//            IO.println("------------------ Streams ------------------");
 //
 //            TransactionIngestor transactionIngestorStream = new TransactionIngestor();
 //            long initStream = System.nanoTime();
 //
 //            List<Transaction> listTransactionsForFile = transactionIngestorStream
-//                    .getListTransactionsForFileWithStream(correctFile);
+//                    .getListTransactionsForFileWithStream(correctFile, totalNumberLines);
 //
 //            long finishStream = System.nanoTime();
 //            double secStream = (finishStream - initStream) / 1_000_000_000.0;
@@ -59,11 +84,11 @@ public class Main {
 //            System.out.printf("com stream: %,d transações em %.3f segundos%n",
 //                    listTransactionsForFile.size(), secStream);
 //
-//            System.out.println("------------------ Streams ------------------");
-//            System.out.println("------------------   END   ------------------\n");
-
-//            System.out.println("------------------ Begin ------------------");
-//            System.out.println("------------------ While ------------------");
+//            IO.println("------------------ Streams ------------------");
+//            IO.println("------------------   END   ------------------\n");
+//
+//            IO.println("------------------ Begin ------------------");
+//            IO.println("------------------ While ------------------");
 //
 //            TransactionIngestor transactionIngetorWhile = new TransactionIngestor();
 //
@@ -77,18 +102,18 @@ public class Main {
 //            System.out.printf("com while: %,d transações em %.3f segundos%n",
 //                    listTransactionsForFileWhile.size(), secWhile);
 //
-//            System.out.println("------------------ While ------------------");
-//            System.out.println("------------------  END  ------------------\n");
+//            IO.println("------------------ While ------------------");
+//            IO.println("------------------  END  ------------------\n");
 
-//            System.out.println("------------------    Begin   ------------------");
-//            System.out.println("------------------ Map vs List------------------");
+//            IO.println("------------------    Begin   ------------------");
+//            IO.println("------------------ Map vs List------------------");
 //
 //            TransactionIngestor transactionIngestor = new TransactionIngestor();
 //
 //            List<Transaction> listTransactions = transactionIngestor
-//                    .getListTransactionsForFileWithStream(correctFile);
+//                    .getListTransactionsForFileWithStream(correctFile, 100000);
 //
-//            String name = "C1868032458";
+//            String name = "C1868032458"; //the last line with limitMax: 100000
 //            var listRepository = new TransactionListRepository(listTransactions);
 //
 //            long start = System.nanoTime();
@@ -104,40 +129,37 @@ public class Main {
 //            long mapSearchNs = System.nanoTime() - start;
 //
 //            System.out.printf("Montagem do mapa  %,.3f ms%n", mapBuildNs / 1_000_000.0);
-//            System.out.printf("Busca na lista    %,d ns%n", listSearchNs);
-//            System.out.printf("Busca no mapa     %,d ns%n", mapSearchNs);
-//            System.out.println("Encontrou o mesmo registro?"
-//                    + (listResult.isPresent() && listResult.equals(mapResult)) + "\n");
+//            System.out.printf("Busca na lista    %,.3f ms%n", listSearchNs / 1_000_000.0);
+//            System.out.printf("Busca no mapa     %,.3f ms%n", mapSearchNs / 1_000_000.0);
+//            IO.println("Encontrou o mesmo registro? "
+//                    + (listResult.isPresent() && listResult.equals(mapResult) ? "Sim" : "Não") + "\n");
 //
 //            mapResult.ifPresentOrElse(
 //                    System.out::println,
-//                    () -> System.out.println("Transação não encontrada para o cliente " + name + "\n"));
+//                    () -> IO.println("Transação não encontrada para o cliente " + name + "\n"));
 //
-//            System.out.println("------------------ Map vs List------------------");
-//            System.out.println("------------------     End    ------------------\n");
+//            IO.println("------------------ Map vs List------------------");
+//            IO.println("------------------     End    ------------------\n");
 
-//            System.out.println("------------------    Begin   ------------------");
-//            System.out.println("------------------FraudAnalyzer------------------");
+//            IO.println("------------------    Begin   ------------------");
+//            IO.println("------------------FraudAnalyzer------------------");
 //
 //            TransactionIngestor transactionIngestorFraudAnalyzer = new TransactionIngestor();
 //
 //            List<Transaction> fiftyThousandTransactions = transactionIngestorFraudAnalyzer
-//                    .getListTransactionsForFileWithStream(correctFile)
-//                    .stream()
-//                    .limit(50000)
-//                    .toList();
+//                    .getListTransactionsForFileWithStream(correctFile, 50000);
 //
-//            FraudAnalyzer analyzer = new FraudAnalyzer();
+//            FraudAnalyzer analyzer = new FraudAnalyzer(fiftyThousandTransactions);
 //
-//            analyzer.printCountFraudTransactions(fiftyThousandTransactions);
-//            analyzer.printValueThreeBiggestFraudsters(fiftyThousandTransactions);
-//            analyzer.printNameOrigFiveBiggestFraudsters(fiftyThousandTransactions);
-//            analyzer.printTotalLoss(fiftyThousandTransactions);
-//            analyzer.printCountFraudsByType(fiftyThousandTransactions);
+//            analyzer.printCountFraudTransactions();
+//            analyzer.printValueThreeBiggestFraudsters();
+//            analyzer.printNameOrigFiveBiggestFraudsters();
+//            analyzer.printTotalLoss();
+//            analyzer.printCountFraudsByType();
 //
-//            System.out.println("------------------FraudAnalyzer------------------");
-//            System.out.println("------------------     End    ------------------\n");
-        } catch (IOException e) {
+//            IO.println("------------------FraudAnalyzer------------------");
+//            IO.println("------------------     End    ------------------\n");
+        } catch (Exception e) {
             logger.log(System.Logger.Level.ERROR, "O arquivo não pode ser aberto, confira o nome.");
         }
     }

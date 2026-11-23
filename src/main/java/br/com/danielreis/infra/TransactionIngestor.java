@@ -12,10 +12,8 @@ import java.util.*;
 
 public class TransactionIngestor {
 
-    public List<Transaction> getListTransactionsForFileWithStream(String fileName)
-            throws IOException {
-
-        List<Transaction> transactions = new ArrayList<>();
+    public List<Transaction> getListTransactionsForFileWithStream(String fileName, long limit)
+            throws Exception {
 
         Path path = Path.of("data", fileName).toAbsolutePath();
 
@@ -27,18 +25,17 @@ public class TransactionIngestor {
                         try {
                             return parseToTransactionItem(line.split(",", -1));
                         } catch (IllegalArgumentException e) {
-                            System.out.println("Erro: " + line + " " + e.getClass().getName() + " " + e.getMessage());
+                            IO.println("Erro: " + line + " " + e.getClass().getName() + " " + e.getMessage());
                             return null;
                         }
                     })
                     .filter(Objects::nonNull)
+                    .limit(limit)
                     .toList();
 
         } catch (Exception e) {
-            System.err.println("Erro: Arquivo não encontrado.");
+           throw new Exception("Erro: Arquivo não encontrado.");
         }
-
-        return transactions;
     }
 
     public List<Transaction> getListTransactionsForFileWhitWhile(String fileName)
@@ -58,7 +55,7 @@ public class TransactionIngestor {
                     transactions.add(
                             parseToTransactionItem(line.split(",", -1)));
                 } catch (IllegalArgumentException | NullPointerException e) {
-                    System.out.println("Erro: " + line + " " + e.getClass().getName() + " " + e.getMessage());
+                    IO.println("Erro: " + line + " " + e.getClass().getName() + " " + e.getMessage());
                 }
             }
         } catch (Exception e) {
@@ -89,8 +86,7 @@ public class TransactionIngestor {
         try {
             return TransactionType.valueOf(value);
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException(
-                    "No enum constant: " + value);
+            throw new IllegalArgumentException("No enum constant: " + value);
         }
     }
 }
