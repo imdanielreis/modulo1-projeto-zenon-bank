@@ -9,6 +9,9 @@ import br.com.danielreis.model.StatisticsReport;
 import br.com.danielreis.model.Transaction;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.*;
 
 public class Main {
@@ -19,29 +22,66 @@ public class Main {
     private static final String brokenFile = "paysim_with_bad_data.csv";
     private static final long totalNumberLines = 6362620;
 
-    static void main() {
+    static void main(String[] args) {
         try {
 
-            IO.println("------------------     Begin     ------------------");
-            IO.println("------------------ Get file Lazy ------------------");
+            IO.println("------------------ Begin  ------------------");
+            IO.println("------------------ Locale ------------------");
 
+            String language = (args.length > 0 ? args[0] : "pt");
+            var locale = Locale.of(language);
+
+            var integerFormat = NumberFormat.getIntegerInstance(locale);
+            var currencyFormat = DecimalFormat.getCurrencyInstance(locale);
+            currencyFormat.setCurrency(Currency.getInstance("USD"));
             TransactionReport transactionReport = new TransactionReport();
+
+            ResourceBundle resourceBundle = ResourceBundle.getBundle("report", locale);
 
             StatisticsReport sReport = transactionReport.generateReportWithFile(correctFile);
 
+            String totalTransactions = integerFormat.format(sReport.totalTransactios());
+            String totalFrauds = integerFormat.format(sReport.totalFrauds());
+            String totalAmount = currencyFormat.format(sReport.totalAmount());
+
+            String msgTotalTransactions = resourceBundle.getString("label.total.transactions");
+            String msgTotalFrauds = resourceBundle.getString("label.total.frauds");
+            String msgTotalAmount = resourceBundle.getString("label.total.amount");
+
             IO.println("""
-                    Total de linhas %d
-                    Total de fraudes: %d
-                    Valor total transacionado: %.2f
+                    %s: %s
+                    %s: %s
+                    %s: %s
                     """.formatted(
-                            sReport.totalTransactios(),
-                            sReport.totalFrauds(),
-                            sReport.totalAmount()
+                            msgTotalTransactions, totalTransactions,
+                            msgTotalFrauds, totalFrauds,
+                            msgTotalAmount, totalAmount
                     )
             );
 
-            IO.println("------------------ Get file Lazy ------------------");
-            IO.println("------------------      END      ------------------\n");
+            IO.println("------------------ Locale ------------------");
+            IO.println("------------------   END  ------------------\n");
+
+//            IO.println("------------------     Begin     ------------------");
+//            IO.println("------------------ Get file Lazy ------------------");
+//
+//            TransactionReport transactionReport = new TransactionReport();
+//
+//            StatisticsReport sReport = transactionReport.generateReportWithFile(correctFile);
+//
+//            IO.println("""
+//                    Total de linhas %d
+//                    Total de fraudes: %d
+//                    Valor total transacionado: %.2f
+//                    """.formatted(
+//                            sReport.totalTransactios(),
+//                            sReport.totalFrauds(),
+//                            sReport.totalAmount()
+//                    )
+//            );
+//
+//            IO.println("------------------ Get file Lazy ------------------");
+//            IO.println("------------------      END      ------------------\n");
 
 //            IO.println("------------------  Begin   ------------------");
 //            IO.println("------------------ Get file ------------------");
