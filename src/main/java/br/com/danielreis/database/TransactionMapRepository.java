@@ -22,4 +22,9 @@ public class TransactionMapRepository implements TransactionListRepositoryInterf
     public Optional<Transaction> findByName(String name) {
         return Optional.ofNullable(transactionByOriginName.get(name));
     }
+
+    @Override
+    public void save(Transaction transaction) {
+        this.transactionByOriginName.putIfAbsent(transaction.nameOrig(), transaction);
+    }
 }

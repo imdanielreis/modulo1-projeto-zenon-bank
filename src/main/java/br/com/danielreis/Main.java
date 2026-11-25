@@ -1,7 +1,9 @@
 package br.com.danielreis;
 
+import br.com.danielreis.database.ConnectionFactory;
 import br.com.danielreis.database.TransactionListRepository;
 import br.com.danielreis.database.TransactionMapRepository;
+import br.com.danielreis.database.TransactionSQLRepository;
 import br.com.danielreis.infra.FraudAnalyzer;
 import br.com.danielreis.infra.TransactionIngestor;
 import br.com.danielreis.infra.TransactionReport;
@@ -24,43 +26,42 @@ public class Main {
 
     static void main(String[] args) {
         try {
-
-            IO.println("------------------ Begin  ------------------");
-            IO.println("------------------ Locale ------------------");
-
-            String language = (args.length > 0 ? args[0] : "pt");
-            var locale = Locale.of(language);
-
-            var integerFormat = NumberFormat.getIntegerInstance(locale);
-            var currencyFormat = DecimalFormat.getCurrencyInstance(locale);
-            currencyFormat.setCurrency(Currency.getInstance("USD"));
-            TransactionReport transactionReport = new TransactionReport();
-
-            ResourceBundle resourceBundle = ResourceBundle.getBundle("report", locale);
-
-            StatisticsReport sReport = transactionReport.generateReportWithFile(correctFile);
-
-            String totalTransactions = integerFormat.format(sReport.totalTransactios());
-            String totalFrauds = integerFormat.format(sReport.totalFrauds());
-            String totalAmount = currencyFormat.format(sReport.totalAmount());
-
-            String msgTotalTransactions = resourceBundle.getString("label.total.transactions");
-            String msgTotalFrauds = resourceBundle.getString("label.total.frauds");
-            String msgTotalAmount = resourceBundle.getString("label.total.amount");
-
-            IO.println("""
-                    %s: %s
-                    %s: %s
-                    %s: %s
-                    """.formatted(
-                            msgTotalTransactions, totalTransactions,
-                            msgTotalFrauds, totalFrauds,
-                            msgTotalAmount, totalAmount
-                    )
-            );
-
-            IO.println("------------------ Locale ------------------");
-            IO.println("------------------   END  ------------------\n");
+//            IO.println("------------------ Begin  ------------------");
+//            IO.println("------------------ Locale ------------------");
+//
+//            String language = (args.length > 0 ? args[0] : "pt");
+//            var locale = Locale.of(language);
+//
+//            var integerFormat = NumberFormat.getIntegerInstance(locale);
+//            var currencyFormat = DecimalFormat.getCurrencyInstance(locale);
+//            currencyFormat.setCurrency(Currency.getInstance("USD"));
+//            TransactionReport transactionReport = new TransactionReport();
+//
+//            ResourceBundle resourceBundle = ResourceBundle.getBundle("report", locale);
+//
+//            StatisticsReport sReport = transactionReport.generateReportWithFile(correctFile);
+//
+//            String totalTransactions = integerFormat.format(sReport.totalTransactios());
+//            String totalFrauds = integerFormat.format(sReport.totalFrauds());
+//            String totalAmount = currencyFormat.format(sReport.totalAmount());
+//
+//            String msgTotalTransactions = resourceBundle.getString("label.total.transactions");
+//            String msgTotalFrauds = resourceBundle.getString("label.total.frauds");
+//            String msgTotalAmount = resourceBundle.getString("label.total.amount");
+//
+//            IO.println("""
+//                    %s: %s
+//                    %s: %s
+//                    %s: %s
+//                    """.formatted(
+//                            msgTotalTransactions, totalTransactions,
+//                            msgTotalFrauds, totalFrauds,
+//                            msgTotalAmount, totalAmount
+//                    )
+//            );
+//
+//            IO.println("------------------ Locale ------------------");
+//            IO.println("------------------   END  ------------------\n");
 
 //            IO.println("------------------     Begin     ------------------");
 //            IO.println("------------------ Get file Lazy ------------------");
@@ -199,8 +200,36 @@ public class Main {
 //
 //            IO.println("------------------FraudAnalyzer------------------");
 //            IO.println("------------------     End    ------------------\n");
+//
+            IO.println("------------------           Begin         ------------------");
+            IO.println("------------------ SQL Create Transactions ------------------");
+
+            var transactionSQLRepository = new TransactionSQLRepository();
+            TransactionIngestor transactionIngestor = new TransactionIngestor();
+
+            List<Transaction> listTransactions = transactionIngestor
+                    .getListTransactionsForFileWithStream(correctFile, 10000);
+
+            listTransactions.forEach(transactionSQLRepository::save);
+
+            IO.println("------------------ SQL Create Transactions ------------------");
+            IO.println("------------------            END           ------------------");
+//
+//            IO.println("------------------      Begin       ------------------");
+//            IO.println("------------------ SQL Find by name ------------------");
+//
+//            String name = "C1231006815";
+//            var transactionSQLRepositoryRepository = new TransactionSQLRepository();
+//            Optional<Transaction> transaction = transactionSQLRepositoryRepository.findByName(name);
+//
+//            transaction.ifPresentOrElse(
+//                    IO::println,
+//                    () -> IO.println("Transação não encontrada para o cliente " + name + "\n"));
+//
+//            IO.println("------------------ SQL Find by name ------------------");
+//            IO.println("------------------        End       ------------------\n");
         } catch (Exception e) {
-            logger.log(System.Logger.Level.ERROR, "O arquivo não pode ser aberto, confira o nome.");
+            logger.log(System.Logger.Level.ERROR, "Um erro inesperado aconteceu.");
         }
     }
 }
