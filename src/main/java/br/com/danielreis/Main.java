@@ -4,6 +4,7 @@ import br.com.danielreis.database.ConnectionFactory;
 import br.com.danielreis.database.TransactionListRepository;
 import br.com.danielreis.database.TransactionMapRepository;
 import br.com.danielreis.database.TransactionSQLRepository;
+import br.com.danielreis.infra.EfficientTransactionIngestor;
 import br.com.danielreis.infra.FraudAnalyzer;
 import br.com.danielreis.infra.TransactionIngestor;
 import br.com.danielreis.infra.TransactionReport;
@@ -201,19 +202,37 @@ public class Main {
 //            IO.println("------------------FraudAnalyzer------------------");
 //            IO.println("------------------     End    ------------------\n");
 //
-            IO.println("------------------           Begin         ------------------");
-            IO.println("------------------ SQL Create Transactions ------------------");
+//            IO.println("------------------           Begin         ------------------");
+//            IO.println("------------------ SQL Create Transactions ------------------");
+//
+//            var transactionSQLRepository = new TransactionSQLRepository();
+//            TransactionIngestor transactionIngestor = new TransactionIngestor();
+//
+//            List<Transaction> listTransactions = transactionIngestor
+//                    .getListTransactionsForFileWithStream(correctFile, 10000);
+//
+//            listTransactions.forEach(transactionSQLRepository::save);
+//
+//            IO.println("------------------ SQL Create Transactions ------------------");
+//            IO.println("------------------            END           ------------------");
 
-            var transactionSQLRepository = new TransactionSQLRepository();
-            TransactionIngestor transactionIngestor = new TransactionIngestor();
+            IO.println("------------------              Begin            ------------------");
+            IO.println("------------------ SQL Batch Create Transactions ------------------");
 
-            List<Transaction> listTransactions = transactionIngestor
-                    .getListTransactionsForFileWithStream(correctFile, 10000);
+            var batchTransactionSQLRepository = new TransactionSQLRepository();
+            EfficientTransactionIngestor efficientTransactionIngestor = new EfficientTransactionIngestor();
+            final int LIMIT = 6_362620;
+            long startBatchIngestor = System.nanoTime();
+            efficientTransactionIngestor
+                    .getListTransactionsForFileWithBatch(correctFile,
+                            LIMIT,
+                            batchTransactionSQLRepository::saveAll);
 
-            listTransactions.forEach(transactionSQLRepository::save);
+            long batchNs = System.nanoTime() - startBatchIngestor;
+            System.out.printf("Inserção de %s transações, em: %,.2f s%n", LIMIT,  batchNs / 1_000_000_000.0);
 
-            IO.println("------------------ SQL Create Transactions ------------------");
-            IO.println("------------------            END           ------------------");
+            IO.println("------------------ SQL Batch Create Transactions ------------------");
+            IO.println("------------------               END             ------------------");
 //
 //            IO.println("------------------      Begin       ------------------");
 //            IO.println("------------------ SQL Find by name ------------------");
